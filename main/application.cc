@@ -9,6 +9,11 @@
 #include "mcp_server.h"
 #include "assets.h"
 #include "settings.h"
+#include "apps/app_manager.h"
+#include "apps/watch_face_app.h"
+#include "apps/weather_app.h"
+#include "apps/pomodoro_app.h"
+#include "apps/gold_price_app.h"
 
 #include <cstring>
 #include <esp_log.h>
@@ -155,6 +160,21 @@ void Application::Initialize() {
         }
     });
 
+    // Register mini apps
+    auto& app_mgr = AppManager::GetInstance();
+    app_mgr.RegisterApp(std::make_unique<WatchFaceApp>());
+    app_mgr.RegisterApp(std::make_unique<WeatherApp>());
+    app_mgr.RegisterApp(std::make_unique<PomodoroApp>());
+    app_mgr.RegisterApp(std::make_unique<GoldPriceApp>());
+
+    // Initialize app layer on the LVGL screen (requires display lock)
+    lv_obj_t* screen = nullptr;
+    {
+        DisplayLockGuard lock(display);
+        screen = lv_screen_active();
+    }
+    app_mgr.Initialize(screen);
+
     // Start network asynchronously
     board.StartNetwork();
 
@@ -250,6 +270,9 @@ void Application::Run() {
             auto display = Board::GetInstance().GetDisplay();
             display->UpdateStatusBar();
         
+            // Tick active mini-app every second
+            AppManager::GetInstance().Tick();
+        
             // Print debug info every 10 seconds
             if (clock_ticks_ % 10 == 0) {
                 SystemInfo::PrintHeapStats();
@@ -308,6 +331,9 @@ void Application::HandleActivationDoneEvent() {
     std::string message = std::string(Lang::Strings::VERSION) + ota_->GetCurrentVersion();
     display->ShowNotification(message.c_str());
     display->SetChatMessage("system", "");
+
+    // Show mini-app UI when entering idle
+    AppManager::GetInstance().ShowCurrentApp();
 
     // Release OTA object after activation is complete
     ota_.reset();
@@ -515,6 +541,8 @@ void Application::InitializeProtocol() {
             auto display = Board::GetInstance().GetDisplay();
             display->SetChatMessage("system", "");
             SetDeviceState(kDeviceStateIdle);
+            // Show mini-app UI again after chat ends
+            AppManager::GetInstance().ShowCurrentApp();
         });
     });
     
@@ -693,6 +721,8 @@ void Application::HandleToggleChatEvent() {
     }
 
     if (state == kDeviceStateIdle) {
+        // Hide app UI when starting a chat session
+        AppManager::GetInstance().HideCurrentApp();
         ListeningMode mode = GetDefaultListeningMode();
         if (!protocol_->IsAudioChannelOpened()) {
             SetDeviceState(kDeviceStateConnecting);
@@ -874,8 +904,12 @@ void Application::HandleStateChangedEvent() {
             display->SetEmotion("neutral"); // Then set emotion (wechat mode checks child count)
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(true);
+            // Show mini-app UI when idle
+            AppManager::GetInstance().ShowCurrentApp();
             break;
         case kDeviceStateConnecting:
+            // Hide mini-app UI when starting chat
+            AppManager::GetInstance().HideCurrentApp();
             display->SetStatus(Lang::Strings::CONNECTING);
             display->SetEmotion("neutral");
             display->SetChatMessage("system", "");
