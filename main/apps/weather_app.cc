@@ -10,7 +10,9 @@
 
 #define TAG "WeatherApp"
 
+extern const lv_font_t lv_font_montserrat_14;
 extern const lv_font_t lv_font_montserrat_24;
+extern const lv_font_t lv_font_montserrat_36;
 extern const lv_font_t lv_font_montserrat_48;
 
 void WeatherApp::OnEnter(lv_obj_t* parent) {
@@ -50,55 +52,102 @@ void WeatherApp::OnTick() {
 }
 
 void WeatherApp::BuildUI() {
-    // City name (top)
+    lv_obj_set_flex_flow(app_root_, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(app_root_, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_top(app_root_, 0, 0);
+    lv_obj_set_style_pad_bottom(app_root_, 32, 0);
+    lv_obj_set_style_pad_row(app_root_, 0, 0);
+
+    // ═══ Sky-blue accent bar ═══
+    lv_obj_t* accent = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(accent);
+    lv_obj_set_size(accent, LV_PCT(100), 4);
+    lv_obj_set_style_bg_opa(accent, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(accent, lv_color_make(80, 180, 255), 0);
+    lv_obj_set_style_bg_grad_color(accent, lv_color_make(40, 120, 200), 0);
+    lv_obj_set_style_bg_grad_dir(accent, LV_GRAD_DIR_HOR, 0);
+
+    // ═══ City ═══
     city_label_ = lv_label_create(app_root_);
     lv_label_set_text(city_label_, LV_SYMBOL_GPS " Ha Noi");
-    lv_obj_set_style_text_color(city_label_, lv_color_make(150, 150, 150), 0);
+    lv_obj_set_style_text_color(city_label_, lv_color_make(100, 160, 220), 0);
     lv_obj_set_style_text_font(city_label_, &lv_font_montserrat_24, 0);
-    lv_obj_align(city_label_, LV_ALIGN_TOP_MID, 0, 30);
+    lv_obj_set_style_pad_top(city_label_, 16, 0);
+    lv_obj_set_style_pad_bottom(city_label_, 4, 0);
 
-    // Temperature (Huge center)
+    // ═══ Temperature (hero) ═══
     temp_label_ = lv_label_create(app_root_);
-    lv_label_set_text(temp_label_, "--°C");
+    lv_label_set_text(temp_label_, "--\xc2\xb0C");
     lv_obj_set_style_text_color(temp_label_, lv_color_white(), 0);
     lv_obj_set_style_text_font(temp_label_, &lv_font_montserrat_48, 0);
-    lv_obj_align(temp_label_, LV_ALIGN_TOP_MID, 0, 80);
+    lv_obj_set_style_pad_top(temp_label_, 6, 0);
+    lv_obj_set_style_pad_bottom(temp_label_, 6, 0);
 
-    // Description (pill badge)
+    // ═══ Description pill ═══
     lv_obj_t* desc_pill = lv_obj_create(app_root_);
     lv_obj_remove_style_all(desc_pill);
-    lv_obj_set_size(desc_pill, 160, 36);
-    lv_obj_set_style_radius(desc_pill, 18, 0);
-    lv_obj_set_style_bg_opa(desc_pill, LV_OPA_30, 0);
-    lv_obj_set_style_bg_color(desc_pill, lv_color_make(255, 165, 0), 0);
-    lv_obj_align(desc_pill, LV_ALIGN_TOP_MID, 0, 150);
+    lv_obj_set_size(desc_pill, LV_SIZE_CONTENT, 38);
+    lv_obj_set_style_pad_hor(desc_pill, 24, 0);
+    lv_obj_set_style_radius(desc_pill, 19, 0);
+    lv_obj_set_style_bg_opa(desc_pill, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(desc_pill, lv_color_make(20, 30, 45), 0);
+    lv_obj_set_style_border_width(desc_pill, 1, 0);
+    lv_obj_set_style_border_color(desc_pill, lv_color_make(60, 100, 160), 0);
 
     desc_label_ = lv_label_create(desc_pill);
     lv_label_set_text(desc_label_, "Dang tai...");
-    lv_obj_set_style_text_color(desc_label_, lv_color_make(255, 200, 80), 0);
+    lv_obj_set_style_text_color(desc_label_, lv_color_make(120, 200, 255), 0);
     lv_obj_set_style_text_font(desc_label_, &lv_font_montserrat_24, 0);
     lv_obj_align(desc_label_, LV_ALIGN_CENTER, 0, 0);
 
-    // Details (humidity + wind)
-    detail_label_ = lv_label_create(app_root_);
+    // ═══ Detail card ═══
+    lv_obj_t* detail_card = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(detail_card);
+    lv_obj_set_size(detail_card, LV_PCT(88), LV_SIZE_CONTENT);
+    lv_obj_set_style_radius(detail_card, 12, 0);
+    lv_obj_set_style_bg_opa(detail_card, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(detail_card, lv_color_make(15, 22, 35), 0);
+    lv_obj_set_style_bg_grad_color(detail_card, lv_color_make(20, 28, 45), 0);
+    lv_obj_set_style_bg_grad_dir(detail_card, LV_GRAD_DIR_VER, 0);
+    lv_obj_set_style_pad_all(detail_card, 12, 0);
+    lv_obj_set_style_margin_top(detail_card, 10, 0);
+    lv_obj_set_scrollbar_mode(detail_card, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_clear_flag(detail_card, LV_OBJ_FLAG_SCROLLABLE);
+
+    detail_label_ = lv_label_create(detail_card);
     lv_label_set_text(detail_label_, "");
     lv_obj_set_style_text_color(detail_label_, lv_color_make(140, 180, 220), 0);
-    lv_obj_align(detail_label_, LV_ALIGN_TOP_MID, 0, 200);
+    lv_obj_set_style_text_font(detail_label_, &lv_font_montserrat_24, 0);
+    lv_obj_align(detail_label_, LV_ALIGN_CENTER, 0, 0);
 
-    // Forecast container (bottom cards)
+    // ═══ Loading ═══
+    loading_label_ = lv_label_create(app_root_);
+    lv_label_set_text(loading_label_, LV_SYMBOL_REFRESH " Dang tai...");
+    lv_obj_set_style_text_color(loading_label_, lv_color_make(60, 100, 140), 0);
+    lv_obj_set_style_text_font(loading_label_, &lv_font_montserrat_24, 0);
+    lv_obj_set_style_pad_top(loading_label_, 8, 0);
+
+    // ═══ Spacer ═══
+    lv_obj_t* spacer = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(spacer);
+    lv_obj_set_size(spacer, 1, 1);
+    lv_obj_set_flex_grow(spacer, 1);
+
+    // ═══ Forecast divider label ═══
+    lv_obj_t* fc_title = lv_label_create(app_root_);
+    lv_label_set_text(fc_title, "DU BAO");
+    lv_obj_set_style_text_color(fc_title, lv_color_make(60, 90, 130), 0);
+    lv_obj_set_style_text_font(fc_title, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_pad_bottom(fc_title, 4, 0);
+
+    // ═══ Forecast container ═══
     forecast_container_ = lv_obj_create(app_root_);
     lv_obj_remove_style_all(forecast_container_);
-    lv_obj_set_size(forecast_container_, LV_PCT(95), 110);
-    lv_obj_align(forecast_container_, LV_ALIGN_BOTTOM_MID, 0, -30);
+    lv_obj_set_size(forecast_container_, LV_PCT(98), 90);
     lv_obj_set_flex_flow(forecast_container_, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(forecast_container_, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_scrollbar_mode(forecast_container_, LV_SCROLLBAR_MODE_OFF);
-
-    // Loading indicator
-    loading_label_ = lv_label_create(app_root_);
-    lv_label_set_text(loading_label_, LV_SYMBOL_REFRESH " Loading...");
-    lv_obj_set_style_text_color(loading_label_, lv_color_make(100, 100, 100), 0);
-    lv_obj_align(loading_label_, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_clear_flag(forecast_container_, LV_OBJ_FLAG_SCROLLABLE);
 }
 
 void WeatherApp::UpdateUI() {
@@ -126,27 +175,37 @@ void WeatherApp::UpdateUI() {
         for (int i = 0; i < 5; i++) {
             lv_obj_t* card = lv_obj_create(forecast_container_);
             lv_obj_remove_style_all(card);
-            lv_obj_set_size(card, 65, 95);
+            lv_obj_set_size(card, 64, 84);
             lv_obj_set_style_radius(card, 12, 0);
-            lv_obj_set_style_bg_opa(card, LV_OPA_20, 0);
-            lv_obj_set_style_bg_color(card, lv_color_make(60, 60, 60), 0);
+            lv_obj_set_style_bg_opa(card, LV_OPA_COVER, 0);
+            lv_obj_set_style_bg_color(card, lv_color_make(15, 22, 35), 0);
+            lv_obj_set_style_bg_grad_color(card, lv_color_make(20, 30, 50), 0);
+            lv_obj_set_style_bg_grad_dir(card, LV_GRAD_DIR_VER, 0);
+            lv_obj_set_style_border_width(card, 1, 0);
+            lv_obj_set_style_border_color(card, lv_color_make(40, 60, 90), 0);
             lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
             lv_obj_set_flex_align(card, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-            lv_obj_set_style_pad_row(card, 8, 0);
+            lv_obj_set_style_pad_row(card, 2, 0);
+            lv_obj_set_style_pad_ver(card, 6, 0);
+            lv_obj_set_scrollbar_mode(card, LV_SCROLLBAR_MODE_OFF);
+            lv_obj_clear_flag(card, LV_OBJ_FLAG_SCROLLABLE);
 
             lv_obj_t* dl = lv_label_create(card);
             lv_label_set_text(dl, day_names[i]);
-            lv_obj_set_style_text_color(dl, lv_color_make(180, 180, 180), 0);
+            lv_obj_set_style_text_color(dl, lv_color_make(80, 130, 180), 0);
+            lv_obj_set_style_text_font(dl, &lv_font_montserrat_14, 0);
 
             lv_obj_t* wl = lv_label_create(card);
             lv_label_set_text(wl, WeatherDescription(data_.daily_code[i]));
-            lv_obj_set_style_text_color(wl, lv_color_make(255, 200, 80), 0);
+            lv_obj_set_style_text_color(wl, lv_color_make(120, 200, 255), 0);
+            lv_obj_set_style_text_font(wl, &lv_font_montserrat_14, 0);
 
             char mb[16];
             snprintf(mb, sizeof(mb), "%.0f/%.0f", data_.daily_max[i], data_.daily_min[i]);
             lv_obj_t* ml = lv_label_create(card);
             lv_label_set_text(ml, mb);
             lv_obj_set_style_text_color(ml, lv_color_white(), 0);
+            lv_obj_set_style_text_font(ml, &lv_font_montserrat_24, 0);
         }
     }
 }
@@ -233,12 +292,12 @@ bool WeatherApp::ParseResponse(const std::string& json) {
 
 const char* WeatherApp::WeatherDescription(int code) {
     if (code == 0) return "Nang";
-    if (code <= 3) return "It may";
-    if (code <= 48) return "Suong mu";
-    if (code <= 57) return "Mua phun";
+    if (code <= 3) return "Co may";
+    if (code <= 48) return "Suong";
+    if (code <= 57) return "Phun";
     if (code <= 67) return "Mua";
     if (code <= 77) return "Tuyet";
-    if (code <= 82) return "Mua rao";
+    if (code <= 82) return "Rao";
     if (code <= 99) return "Dong";
     return "?";
 }

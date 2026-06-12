@@ -10,6 +10,7 @@
 
 #define TAG "GoldPriceApp"
 
+extern const lv_font_t lv_font_montserrat_14;
 extern const lv_font_t lv_font_montserrat_24;
 extern const lv_font_t lv_font_montserrat_36;
 extern const lv_font_t lv_font_montserrat_48;
@@ -51,73 +52,120 @@ void GoldPriceApp::OnTick() {
 }
 
 void GoldPriceApp::BuildUI() {
-    // Header background (Finance style)
-    lv_obj_t* header = lv_obj_create(app_root_);
-    lv_obj_remove_style_all(header);
-    lv_obj_set_size(header, LV_PCT(100), 50);
-    lv_obj_set_style_bg_opa(header, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(header, lv_color_make(30, 30, 30), 0);
-    lv_obj_set_style_border_width(header, 2, 0);
-    lv_obj_set_style_border_side(header, LV_BORDER_SIDE_BOTTOM, 0);
-    lv_obj_set_style_border_color(header, lv_color_make(255, 215, 0), 0);
-    lv_obj_align(header, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_set_flex_flow(app_root_, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(app_root_, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_top(app_root_, 0, 0);
+    lv_obj_set_style_pad_bottom(app_root_, 32, 0);
+    lv_obj_set_style_pad_row(app_root_, 0, 0);
 
-    // Title
-    title_label_ = lv_label_create(header);
-    lv_label_set_text(title_label_, "GIA VANG SJC 9999");
+    // ═══ Gold accent bar (top) ═══
+    lv_obj_t* accent = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(accent);
+    lv_obj_set_size(accent, LV_PCT(100), 4);
+    lv_obj_set_style_bg_opa(accent, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(accent, lv_color_make(255, 195, 0), 0);
+    lv_obj_set_style_bg_grad_color(accent, lv_color_make(200, 150, 0), 0);
+    lv_obj_set_style_bg_grad_dir(accent, LV_GRAD_DIR_HOR, 0);
+
+    // ═══ Title ═══
+    title_label_ = lv_label_create(app_root_);
+    lv_label_set_text(title_label_, "VANG SJC 9999");
     lv_obj_set_style_text_color(title_label_, lv_color_make(255, 215, 0), 0);
     lv_obj_set_style_text_font(title_label_, &lv_font_montserrat_24, 0);
-    lv_obj_align(title_label_, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_pad_top(title_label_, 14, 0);
+    lv_obj_set_style_pad_bottom(title_label_, 10, 0);
 
-    // Main VND Price Card (MUA VAO)
-    lv_obj_t* vnd_card = lv_obj_create(app_root_);
-    lv_obj_remove_style_all(vnd_card);
-    lv_obj_set_size(vnd_card, 300, 120);
-    lv_obj_set_style_radius(vnd_card, 15, 0);
-    lv_obj_set_style_bg_opa(vnd_card, LV_OPA_20, 0);
-    lv_obj_set_style_bg_color(vnd_card, lv_color_make(255, 215, 0), 0);
-    lv_obj_align(vnd_card, LV_ALIGN_TOP_MID, 0, 80);
+    // ═══ BUY CARD (hero) ═══
+    lv_obj_t* buy_card = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(buy_card);
+    lv_obj_set_size(buy_card, LV_PCT(88), LV_SIZE_CONTENT);
+    lv_obj_set_style_radius(buy_card, 20, 0);
+    lv_obj_set_style_bg_opa(buy_card, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(buy_card, lv_color_make(25, 22, 10), 0);
+    lv_obj_set_style_bg_grad_color(buy_card, lv_color_make(40, 35, 15), 0);
+    lv_obj_set_style_bg_grad_dir(buy_card, LV_GRAD_DIR_VER, 0);
+    lv_obj_set_style_border_width(buy_card, 1, 0);
+    lv_obj_set_style_border_color(buy_card, lv_color_make(80, 65, 0), 0);
+    lv_obj_set_flex_flow(buy_card, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(buy_card, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_ver(buy_card, 16, 0);
+    lv_obj_set_style_pad_row(buy_card, 4, 0);
+    lv_obj_set_scrollbar_mode(buy_card, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_clear_flag(buy_card, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t* mua_label = lv_label_create(vnd_card);
-    lv_label_set_text(mua_label, "MUA VAO:");
-    lv_obj_set_style_text_color(mua_label, lv_color_make(180, 180, 180), 0);
-    lv_obj_align(mua_label, LV_ALIGN_TOP_LEFT, 15, 10);
+    lv_obj_t* mua_lbl = lv_label_create(buy_card);
+    lv_label_set_text(mua_lbl, "MUA VAO");
+    lv_obj_set_style_text_color(mua_lbl, lv_color_make(180, 160, 80), 0);
+    lv_obj_set_style_text_font(mua_lbl, &lv_font_montserrat_24, 0);
 
-    price_vnd_label_ = lv_label_create(vnd_card);
+    price_vnd_label_ = lv_label_create(buy_card);
     lv_label_set_text(price_vnd_label_, "---");
-    lv_obj_set_style_text_color(price_vnd_label_, lv_color_white(), 0);
+    lv_obj_set_style_text_color(price_vnd_label_, lv_color_make(255, 225, 100), 0);
     lv_obj_set_style_text_font(price_vnd_label_, &lv_font_montserrat_48, 0);
-    lv_obj_align(price_vnd_label_, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t* vnd_unit = lv_label_create(vnd_card);
-    lv_label_set_text(vnd_unit, "Trieu VND / Luong");
-    lv_obj_set_style_text_color(vnd_unit, lv_color_make(180, 180, 180), 0);
-    lv_obj_align(vnd_unit, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_t* unit_lbl = lv_label_create(buy_card);
+    lv_label_set_text(unit_lbl, "Trieu VND / Luong");
+    lv_obj_set_style_text_color(unit_lbl, lv_color_make(120, 110, 60), 0);
+    lv_obj_set_style_text_font(unit_lbl, &lv_font_montserrat_24, 0);
 
-    // SELL Price Details (BAN RA)
-    price_usd_label_ = lv_label_create(app_root_); // Re-using variable name for Sell Price
-    lv_label_set_text(price_usd_label_, "BAN RA: ---");
-    lv_obj_set_style_text_color(price_usd_label_, lv_color_make(255, 150, 150), 0);
+    // ═══ Separator ═══
+    lv_obj_t* sep = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(sep);
+    lv_obj_set_size(sep, LV_PCT(50), 1);
+    lv_obj_set_style_bg_opa(sep, LV_OPA_30, 0);
+    lv_obj_set_style_bg_color(sep, lv_color_make(255, 215, 0), 0);
+    lv_obj_set_style_margin_top(sep, 10, 0);
+    lv_obj_set_style_margin_bottom(sep, 10, 0);
+
+    // ═══ SELL CARD ═══
+    lv_obj_t* sell_card = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(sell_card);
+    lv_obj_set_size(sell_card, LV_PCT(88), LV_SIZE_CONTENT);
+    lv_obj_set_style_radius(sell_card, 14, 0);
+    lv_obj_set_style_bg_opa(sell_card, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(sell_card, lv_color_make(30, 15, 15), 0);
+    lv_obj_set_style_border_width(sell_card, 2, 0);
+    lv_obj_set_style_border_color(sell_card, lv_color_make(180, 60, 60), 0);
+    lv_obj_set_style_border_side(sell_card, LV_BORDER_SIDE_LEFT, 0);
+    lv_obj_set_style_pad_all(sell_card, 14, 0);
+    lv_obj_set_scrollbar_mode(sell_card, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_clear_flag(sell_card, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_t* sell_title = lv_label_create(sell_card);
+    lv_label_set_text(sell_title, "BAN RA");
+    lv_obj_set_style_text_color(sell_title, lv_color_make(180, 100, 100), 0);
+    lv_obj_set_style_text_font(sell_title, &lv_font_montserrat_24, 0);
+    lv_obj_align(sell_title, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    price_usd_label_ = lv_label_create(sell_card);
+    lv_label_set_text(price_usd_label_, "---");
+    lv_obj_set_style_text_color(price_usd_label_, lv_color_make(255, 130, 130), 0);
     lv_obj_set_style_text_font(price_usd_label_, &lv_font_montserrat_36, 0);
-    lv_obj_align(price_usd_label_, LV_ALIGN_TOP_MID, 0, 220);
+    lv_obj_align(price_usd_label_, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
 
-    // Change indicator
+    // ═══ Change pill ═══
     change_label_ = lv_label_create(app_root_);
     lv_label_set_text(change_label_, "--");
     lv_obj_set_style_text_font(change_label_, &lv_font_montserrat_24, 0);
-    lv_obj_align(change_label_, LV_ALIGN_TOP_MID, 0, 270);
+    lv_obj_set_style_margin_top(change_label_, 8, 0);
 
-    // Last update time
-    update_label_ = lv_label_create(app_root_);
-    lv_label_set_text(update_label_, "Dang tai du lieu...");
-    lv_obj_set_style_text_color(update_label_, lv_color_make(100, 100, 100), 0);
-    lv_obj_align(update_label_, LV_ALIGN_BOTTOM_MID, 0, -40);
-
-    // Loading overlay
+    // ═══ Loading ═══
     loading_label_ = lv_label_create(app_root_);
-    lv_label_set_text(loading_label_, LV_SYMBOL_REFRESH " Loading...");
-    lv_obj_set_style_text_color(loading_label_, lv_color_make(150, 150, 150), 0);
-    lv_obj_align(loading_label_, LV_ALIGN_CENTER, 0, 0);
+    lv_label_set_text(loading_label_, LV_SYMBOL_REFRESH " Dang tai...");
+    lv_obj_set_style_text_color(loading_label_, lv_color_make(120, 100, 50), 0);
+    lv_obj_set_style_text_font(loading_label_, &lv_font_montserrat_24, 0);
+
+    // ═══ Spacer ═══
+    lv_obj_t* spacer = lv_obj_create(app_root_);
+    lv_obj_remove_style_all(spacer);
+    lv_obj_set_size(spacer, 1, 1);
+    lv_obj_set_flex_grow(spacer, 1);
+
+    // ═══ Update time ═══
+    update_label_ = lv_label_create(app_root_);
+    lv_label_set_text(update_label_, "");
+    lv_obj_set_style_text_color(update_label_, lv_color_make(80, 70, 40), 0);
+    lv_obj_set_style_text_font(update_label_, &lv_font_montserrat_24, 0);
 }
 
 void GoldPriceApp::UpdateUI() {
